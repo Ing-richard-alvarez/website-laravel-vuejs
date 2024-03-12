@@ -47,10 +47,10 @@ export const useAuthStore = defineStore("auth", {
                 this.router.push("/");
             } catch (error) {
                 console.error(error);
-            //    if(error.response.status === 422){
-            //         this.authErrors = error.response.data.errors;
-            //         console.log(this.authErrors);
-            //    }
+               if(error.response.status === 422){
+                    this.authErrors = error.response.data.errors;
+                    console.log(this.authErrors);
+               }
             }
         },
         async handleRegister( data ) {
@@ -121,6 +121,7 @@ export const useAuthStore = defineStore("auth", {
 
             try {
                 const response = await axios.post("/api/sendOtp",{"phone_number": form.phone_to_validate}, {headers});
+                console.log(response.data)
                 const { errors, reference_id } = response.data;
                 
                 if(errors.length === 0) {
@@ -135,7 +136,7 @@ export const useAuthStore = defineStore("auth", {
                         if(result.dismiss) {
                             this.authShowFormSendCode = false;
                             this.authShowFormValidateCode = true;
-                            this.authReferenceOtpCode = reference_id
+                            this.authReferenceOtpCode = reference_id;
                         }
                     });
                     
