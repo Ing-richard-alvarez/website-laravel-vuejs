@@ -7,6 +7,7 @@ import Swal from 'sweetalert2';
 export const useAuthStore = defineStore("auth", {
     state: () => ({
         authUser: null,
+        authInfoVIN: null,
         authErrors: [],
         authShowFormCreateUser: true,
         authShowFormSendCode: false,
@@ -15,6 +16,7 @@ export const useAuthStore = defineStore("auth", {
     }),
     getters: {
         user: (state) => state.authUser,
+        infoVIN: (state) => state.authInfoVIN,
         errors: (state) => state.authErrors,
         showFormCreateUser: (state) => state.authShowFormCreateUser,
         showFormSendCode: (state) => state.authShowFormSendCode,
@@ -193,6 +195,28 @@ export const useAuthStore = defineStore("auth", {
                 console.error(error);                
             }
             
+        },
+        async handleFindingVIN( form ) {
+            const vin = form.vin;
+
+            const options = {
+                method: 'GET',
+                url: 'https://vindecoder.p.rapidapi.com/decode_vin',
+                params: {
+                  vin: vin
+                },
+                headers: {
+                  'X-RapidAPI-Key': 'de2e861cfbmsh4044ee22d2fe00fp148010jsn92c0ef95db4d',
+                  'X-RapidAPI-Host': 'vindecoder.p.rapidapi.com'
+                }
+            };
+            try {
+                const response = await axios.request(options);
+                this.authInfoVIN = response.data;
+                console.log(response.data);
+            } catch (error) {
+                console.error(error);
+            }
         }
     }
 })
