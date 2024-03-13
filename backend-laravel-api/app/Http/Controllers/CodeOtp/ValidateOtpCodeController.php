@@ -19,16 +19,13 @@ class ValidateOtpCodeController extends Controller
         $url = env("URL_API_TELESIGN_SENDOTP");
         $customerId = env("CUSTOMER_ID_TELESIGN");
         $apiKey = env("API_KEY_TELESIGN");
-        $phone = $request->input("phone");
+        $phone = $request->input("phone_number");
         
         // call api telesign using Basic Auth 
         $response = Http::withBasicAuth($customerId, $apiKey)->asForm()->post($url,['phone_number' => $phone]);
         $decodeResponse = $response->json();
 
-        return response()->json([
-            'phone' => $phone,
-            'response' => $decodeResponse
-        ]);
+        return $decodeResponse;
     }
 
     /**
