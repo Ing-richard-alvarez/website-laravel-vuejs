@@ -1,18 +1,33 @@
 <script setup>
-import { ref } from "vue"
+import { ref, onMounted } from "vue"
 import { useAuthStore } from "../stores/auth";
+import axios from "axios";
 
 const authStore = useAuthStore();
 
 const form = ref({
   name: "",
   email: "",
+  phone_prefix_code: "",
   phone: "",
   phone_to_validate: "",
   password: "",
   password_confirmation: "",
   code_otp: ""
 })
+
+const countries = ref();
+
+onMounted(async () => {
+  // get all prefix code phone of each country in the world.
+  try {
+    const response = await axios.get("https://restcountries.com/v2/all");
+    countries.value = response.data;
+  } catch (error) {
+    console.error(error);
+  }
+  
+});
 
 </script>
 
@@ -45,6 +60,15 @@ const form = ref({
           <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email address</label>
           <div class="mt-2">
             <input id="email" name="email" type="email" v-model="form.email" autocomplete="email"  required="" class="block w-full rounded-md border-0 py-1.5 p-2  text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+          </div>
+        </div>
+
+        <div>
+          <label for="countries" class="block text-sm font-medium leading-6 text-gray-900">Code Phone</label>
+          <div class="mt-2">
+            <select id="countries" name="countries" autocomplete="countries-name" v-model="form.phone_prefix_code" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+              <option v-for="option in countries" :value="option.callingCodes[0]">({{ option.callingCodes[0] }}) - {{ option.name }}</option>
+            </select>
           </div>
         </div>
 
@@ -90,9 +114,19 @@ const form = ref({
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
       <form class="space-y-6" @submit.prevent="authStore.handleSendCode(form)">
         <div>
+          <label for="country_code" class="block text-sm font-medium leading-6 text-gray-900">Code Phone</label>
+          <div class="mt-2">
+            <select id="country_code" name="country_code" autocomplete="country_code" v-model="form.phone_prefix_code" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+              <option v-for="option in countries" :value="option.callingCodes[0]">
+                ({{ option.callingCodes[0] }}) - {{ option.name }}
+              </option>
+            </select>
+          </div>
+        </div>
+        <div>
           <label for="phone_to_validate" class="block text-sm font-medium leading-6 text-gray-900">Phone</label>
           <div class="mt-2">
-            <input id="phone_to_validate" name="phone_to_validate" type="text" v-model="form.phone_to_validate" autocomplete="phone_to_validate"  required="" class="block w-full rounded-md border-0 py-1.5 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
+            <input id="phone_to_validate" name="phone_to_validate" type="text" v-model="form.phone" autocomplete="phone_to_validate"  required="" class="block w-full rounded-md border-0 py-1.5 p-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
           </div>
         </div>
 

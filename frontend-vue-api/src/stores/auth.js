@@ -66,7 +66,7 @@ export const useAuthStore = defineStore("auth", {
             const formData = {
               name: data.name,
               email: data.email,
-              phone: data.phone,
+              phone: data.phone_prefix_code + data.phone,
               password: data.password,
               password_confirmation: data.password_confirmation
             }
@@ -113,6 +113,7 @@ export const useAuthStore = defineStore("auth", {
             }
             await axios.post("/logout",{}, {headers: headers});
             this.authUser = null;
+            this.authInfoVIN = null;
         },
         async handleSendCode(form) {
             await this.getToken();
@@ -121,8 +122,10 @@ export const useAuthStore = defineStore("auth", {
               'X-XSRF-TOKEN': `${token}`,
             }
 
+            let phone = form.phone_prefix_code + form.phone;
+
             try {
-                const response = await axios.post("/api/sendOtp",{"phone_number": form.phone_to_validate}, {headers});
+                const response = await axios.post("/api/sendOtp",{"phone_number": phone}, {headers});
                 console.log(response.data)
                 const { errors, reference_id } = response.data;
                 
@@ -175,6 +178,9 @@ export const useAuthStore = defineStore("auth", {
                             this.router.push("/login");
                         }
                     });
+
+                    this.authShowFormValidateCode = false,
+                    this.authShowFormCreateUser = true;
                 } else {
                     Swal.fire({
                         position: "center",
@@ -213,7 +219,16 @@ export const useAuthStore = defineStore("auth", {
             try {
                 const response = await axios.request(options);
                 this.authInfoVIN = response.data;
-                console.log(response.data);
+                
+                if(this.authInfoVIN.success == false) {
+                    this.authInfoVIN = null;
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "The request was not successfully!"
+                    });
+                }
+
             } catch (error) {
                 console.error(error);
             }
